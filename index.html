@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>KJ</title>
+<title>KJ ANSWER</title>
 
 <style>
 body {
@@ -17,7 +17,7 @@ body {
   flex-direction: column;
 }
 
-/* 🔥 LOADING SCREEN */
+/* 🔥 LOADER */
 #loader {
   position: fixed;
   width: 100%;
@@ -26,21 +26,20 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease;
+  z-index: 99999;
 }
 
 .kj {
-  font-size: 60px;
+  font-size: 70px;
   font-weight: bold;
   color: #00ccff;
-  text-shadow: 0 0 10px #00ccff, 0 0 30px #00ccff;
+  text-shadow: 0 0 20px #00ccff, 0 0 40px #00ccff;
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
   0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 0.5; }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -60,7 +59,7 @@ body {
   font-size: 40px;
   font-weight: bold;
   color: #00ccff;
-  text-shadow: 0 0 10px #00ccff, 0 0 30px #00ccff;
+  text-shadow: 0 0 10px #00ccff;
   margin-bottom: 10px;
 }
 
@@ -85,30 +84,17 @@ button {
   color: black;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 button:hover {
   box-shadow: 0 0 15px #00ccff;
-  transform: scale(1.05);
 }
 
 /* ANSWER */
 #answer {
   margin-top: 20px;
-  font-size: 22px;
+  font-size: 20px;
   color: #66e0ff;
-  text-shadow: 0 0 10px #00ccff;
-  min-height: 30px;
-}
-
-#answer::after {
-  content: "|";
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
 }
 </style>
 </head>
@@ -122,17 +108,19 @@ button:hover {
 
 <!-- MAIN UI -->
 <div class="box">
-  <div class="logo">KJ ANSWER</div>
 
-  <p>Type your petition:</p>
-  <input type="text" id="petition">
+<div class="logo">KJ ANSWER</div>
 
-  <p>Ask your question:</p>
-  <input type="text" id="question">
+<p>Type your petition:</p>
+<input type="text" id="petition">
 
-  <button onclick="revealAnswer()">Reveal</button>
+<p>Ask your question:</p>
+<input type="text" id="question">
 
-  <div id="answer"></div>
+<button onclick="revealAnswer()">Reveal</button>
+
+<div id="answer"></div>
+
 </div>
 
 <script>
@@ -147,68 +135,75 @@ const petitionInput = document.getElementById("petition");
 const questionInput = document.getElementById("question");
 const answerBox = document.getElementById("answer");
 
-/* 🔥 LOADER REMOVE */
-window.addEventListener("load", function() {
+/* 🔥 REMOVE LOADER */
+window.addEventListener("load", function () {
+
   setTimeout(() => {
-    document.getElementById("loader").style.opacity = "0";
+
+    let loader = document.getElementById("loader");
+
+    loader.style.opacity = "0";
+
     setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
+      loader.style.display = "none";
     }, 500);
-  }, 2000);
+
+  }, 1500);
 });
 
-/* block paste */
-petitionInput.addEventListener("paste", e => e.preventDefault());
+/* 🔥 DOT + SECRET TRIGGER */
+petitionInput.addEventListener("input", function () {
 
-petitionInput.addEventListener("keydown", function(e) {
+  let value = petitionInput.value.toLowerCase().trim();
 
-  const currentValue = petitionInput.value.toLowerCase();
+  if (value.includes("its peter") || value === ".") {
 
-  /* SECRET TRIGGER */
-  if (currentValue === "its peter") {
     capturing = true;
     hiddenAnswer = "";
     fakeIndex = 0;
-    petitionInput.value = "";
+
+    setTimeout(() => {
+      petitionInput.value = "";
+    }, 0);
+  }
+});
+
+/* 🔥 KEY SYSTEM */
+petitionInput.addEventListener("keydown", function(e) {
+
+  if (!capturing) return;
+
+  if (e.key === "Backspace") {
+    hiddenAnswer = hiddenAnswer.slice(0, -1);
+    fakeIndex = Math.max(0, fakeIndex - 1);
+    petitionInput.value = fakeText.slice(0, fakeIndex);
     e.preventDefault();
-    return;
   }
 
-  if (e.key === "Enter") {
-    capturing = false;
-    return;
+  else if (e.key === " ") {
+    hiddenAnswer += " ";
+
+    if (fakeIndex < fakeText.length) {
+      petitionInput.value += fakeText[fakeIndex];
+      fakeIndex++;
+    }
+
+    e.preventDefault();
   }
 
-  if (capturing) {
+  else if (e.key.length === 1) {
+    hiddenAnswer += e.key;
 
-    if (e.key === "Backspace") {
-      hiddenAnswer = hiddenAnswer.slice(0, -1);
-      fakeIndex = Math.max(0, fakeIndex - 1);
-      petitionInput.value = fakeText.slice(0, fakeIndex);
-    }
-
-    else if (e.key === " ") {
-      hiddenAnswer += " ";
-
-      if (fakeIndex < fakeText.length) {
-        petitionInput.value += fakeText[fakeIndex];
-        fakeIndex++;
-      }
-    }
-
-    else if (e.key.length === 1) {
-      hiddenAnswer += e.key;
-
-      if (fakeIndex < fakeText.length) {
-        petitionInput.value += fakeText[fakeIndex];
-        fakeIndex++;
-      }
+    if (fakeIndex < fakeText.length) {
+      petitionInput.value += fakeText[fakeIndex];
+      fakeIndex++;
     }
 
     e.preventDefault();
   }
 });
 
+/* 🔮 REVEAL */
 function revealAnswer() {
 
   const question = questionInput.value.trim();
@@ -219,37 +214,15 @@ function revealAnswer() {
   }
 
   if (hiddenAnswer.trim() === "") {
-    answerBox.innerText = "I cannot see anything... 👁️";
+    answerBox.innerText = "No hidden answer detected...";
     return;
   }
 
   answerBox.innerText = "Thinking...";
 
   setTimeout(() => {
-    typeEffect("KJ ANSWER: " + hiddenAnswer);
-  }, 1500);
-}
-
-function typeEffect(text) {
-  answerBox.innerText = "";
-  let i = 0;
-
-  const interval = setInterval(() => {
-    answerBox.innerText += text[i];
-    i++;
-
-    if (i >= text.length) {
-      clearInterval(interval);
-
-      setTimeout(() => {
-        hiddenAnswer = "";
-        capturing = false;
-        fakeIndex = 0;
-        petitionInput.value = "";
-        questionInput.value = "";
-      }, 1200);
-    }
-  }, 40);
+    answerBox.innerText = "KJ ANSWER: " + hiddenAnswer;
+  }, 1000);
 }
 
 </script>
